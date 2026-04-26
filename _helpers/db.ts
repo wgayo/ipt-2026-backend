@@ -8,8 +8,6 @@ import refreshTokenModel from '../accounts/refresh-token.model';
 const db: any = {};
 export default db;
 
-initialize();
-
 type FileConfig = {
     database?: {
         host?: string;
@@ -72,3 +70,5 @@ async function initialize() {
 
     await sequelize.sync();
 }
+
+initialize();
