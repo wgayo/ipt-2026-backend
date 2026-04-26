@@ -78,7 +78,7 @@ async function refreshToken({ token, ipAddress }) {
 
     // replace old refresh token with a new one and save
     const newRefreshToken = generateRefreshToken(account, ipAddress);
-    refreshToken.revoked = Date.now();
+    refreshToken.revoked = new Date();
     refreshToken.revokedByIp = ipAddress;
     refreshToken.replacedByToken = newRefreshToken.token;
     await refreshToken.save();
@@ -99,7 +99,7 @@ async function revokeToken({ token, ipAddress }) {
     const refreshToken = await getRefreshToken(token);
 
     // revoke token and save
-    refreshToken.revoked = Date.now();
+    refreshToken.revoked = new Date();
     refreshToken.revokedByIp = ipAddress;
     await refreshToken.save();
 }
@@ -134,7 +134,7 @@ async function verifyEmail({ token }) {
 
     if (!account) throw 'Verification failed';
 
-    account.verified = Date.now();
+    account.verified = new Date();
     account.verificationToken = null;
     await account.save();
 }
@@ -158,7 +158,7 @@ async function validateResetToken({ token }) {
     const account = await db.Account.findOne({
         where: {
             resetToken: token,
-            resetTokenExpires: { [Op.gt]: Date.now() }
+            resetTokenExpires: { [Op.gt]: new Date() }
         }
     });
 
@@ -172,7 +172,7 @@ async function resetPassword({ token, password }) {
 
     // update password and remove reset token
     account.passwordHash = await hash(password);
-    account.passwordReset = Date.now();
+    account.passwordReset = new Date();
     account.resetToken = null;
     await account.save();
 }
@@ -194,7 +194,7 @@ async function create(params) {
     }
 
     const account = new db.Account(params);
-    account.verified = Date.now();
+    account.verified = new Date();
 
     // hash password
     account.passwordHash = await hash(params.password);
@@ -220,7 +220,7 @@ async function update(id, params) {
 
     // copy params to account and save
     Object.assign(account, params);
-    account.updated = Date.now();
+    account.updated = new Date();
     await account.save();
 
     return basicDetails(account);
