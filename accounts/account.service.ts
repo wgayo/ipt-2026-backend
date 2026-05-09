@@ -125,6 +125,15 @@ async function register(params, origin) {
     // save account
     await account.save();
 
+    const verificationUrl = origin ? `${origin}/account/verify-email?token=${account.verificationToken}` : null;
+
+    if (process.env.DEMO_EMAIL === 'true') {
+        return {
+            verificationUrl,
+            verificationToken: verificationUrl ? undefined : account.verificationToken
+        };
+    }
+
     // send email
     await sendVerificationEmail(account, origin);
 }
@@ -149,6 +158,15 @@ async function forgotPassword({ email }, origin) {
     account.resetToken = randomTokenString();
     account.resetTokenExpires = new Date(Date.now() + 24*60*60*1000);
     await account.save();
+
+    const resetUrl = origin ? `${origin}/account/reset-password?token=${account.resetToken}` : null;
+
+    if (process.env.DEMO_EMAIL === 'true') {
+        return {
+            resetUrl,
+            resetToken: resetUrl ? undefined : account.resetToken
+        };
+    }
 
     // send email
     await sendPasswordResetEmail(account, origin);

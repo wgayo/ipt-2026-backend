@@ -32,6 +32,12 @@ function getSmtpOptions() {
         throw 'SMTP_HOST environment variable is required in production to send emails';
     }
 
+    const defaultTimeouts = {
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000
+    };
+
     if (process.env.SMTP_HOST) {
         return {
             host: process.env.SMTP_HOST,
@@ -42,12 +48,16 @@ function getSmtpOptions() {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASS
                 }
-                : undefined
+                : undefined,
+            ...defaultTimeouts
         };
     }
 
     if (!fileConfig.smtpOptions) throw 'SMTP configuration is missing';
-    return fileConfig.smtpOptions;
+    return {
+        ...defaultTimeouts,
+        ...fileConfig.smtpOptions
+    };
 }
 
 async function sendEmail({ to, subject, html, from }: any) {

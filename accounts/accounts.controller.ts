@@ -45,6 +45,9 @@ function authenticate(req, res, next) {
 function refreshToken(req, res, next) {
     const token = req.cookies.refreshToken;
     const ipAddress = req.ip;
+
+    if (!token) return res.status(401).json({ message: 'Invalid token' });
+
     accountService.refreshToken({ token, ipAddress })
         .then(({ refreshToken, ...account }) => {
             setTokenCookie(res, refreshToken);
@@ -92,7 +95,10 @@ function registerSchema(req, res, next) {
 
 function register(req, res, next) {
     accountService.register(req.body, req.get('origin'))
-        .then(() => res.json({ message: 'Registration successful, please check your email for verification instructions' }))
+        .then((result: any) => res.json({
+            message: 'Registration successful, please check your email for verification instructions',
+            ...(result || {})
+        }))
         .catch(next);
 }
 
@@ -118,7 +124,10 @@ function forgotPasswordSchema(req, res, next) {
 
 function forgotPassword(req, res, next) {
     accountService.forgotPassword(req.body, req.get('origin'))
-        .then(() => res.json({ message: 'Please check your email for password reset instructions' }))
+        .then((result: any) => res.json({
+            message: 'Please check your email for password reset instructions',
+            ...(result || {})
+        }))
         .catch(next);
 }
 
